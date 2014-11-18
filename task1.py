@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#sfgsfgsgsfgf
 
 import sys
 import re
@@ -10,13 +11,12 @@ def ip_host(ip_host_f):
     #ipPattern = re.compile(r'^(\d+.\d+.\d+.\d+)*(\b\w+)$')
     #ipPattern = re.compile(r'^(\d+.\d+.\d+.\d+).*[\t|\ ](\w+[.\w]*)$')
     #ipPattern = re.compile(r'^(\d+.\d+.\d+.\d+)([[\t|\ ].*[\t|\ ]]|[\t|\ ])(\w+[\W\w+]*)$')
-    ipPattern = re.compile(r'^(\d+.\d+.\d+.\d+).*[\t|\ ](\w+[\W\w+]*)$')
+    ipPattern = re.compile(r'^(\d+.\d+.\d+.\d+).*\s(\w+[\W\w+]*)$')
     res = {}
     with open(ip_host_f) as a_file:
         for a_line in a_file:
             line_number += 1
             a_rez = ipPattern.match(a_line.rstrip())
-            #a_rez=ipPattern.search('1.2.3.4  \t\t\   gfdfgdfgs sfgsdf')
             try:
                 res[a_rez.groups()[1]] = a_rez.groups()[0]
             except AttributeError:  # Nothing found.
@@ -25,13 +25,16 @@ def ip_host(ip_host_f):
 
 
 class TestHostLookup(unittest.TestCase):
-    test_file_name = './data_test/t1.txt'
-    expected_basic = {'localhost': '127.0.0.1'}
+    test_file_names = ['./data_test/t1.txt',
+                       './data_test/t2.txt']
+    expected_res = [{'localhost': '127.0.0.1'},
+                    {'txt': '1.1.1.1'}]
 
     def test_basic(self):
-        res = ip_host(self.test_file_name)
-        assert res == self.expected_basic
-
+        for test_fn, exp in zip(self.test_file_names, self.expected_res):
+            res = ip_host(test_fn)
+            assert res == exp, 'got:{} exp:{}'.format(res, exp)
+    # a, b = b, a
 
 def main():
     if len(sys.argv) == 1:
