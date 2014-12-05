@@ -7,17 +7,14 @@ import unittest
 
 
 def iphost(ip_host_f):
-    '''выделяем из строки ip и имя host'''
+    ''' выделяем из строки ip и имя host '''
     line_number = 0
-    #iphost_ipPattern = re.compile(r'^(\d+.\d+.\d+.\d+)*(\b\w+)$')
-    #iphost_ipPattern = re.compile(r'^(\d+.\d+.\d+.\d+).*[\t|\ ](\w+[.\w]*)$')
-    #iphost_ipPattern = re.compile(r'^(\d+.\d+.\d+.\d+)([[\t|\ ].*[\t|\ ]]|[\t|\ ]) # (\w+[\W\w+]*)$')
-    iphost_ipPattern = re.compile(r'^(\d+.\d+.\d+.\d+).*[\s\W]([\w.-]*)$')
+    iphost_ip_pattern = re.compile(r'^(\d+.\d+.\d+.\d+).*[\s\W]([\w.-]*)$')
     res = {}
     with open(ip_host_f) as a_file:
         for a_line in a_file:
             line_number += 1
-            a_rez = iphost_ipPattern.match(a_line.rstrip())
+            a_rez = iphost_ip_pattern.match(a_line.rstrip())
             try:
                 res[a_rez.groups()[1]] = a_rez.groups()[0]
             except AttributeError:  # Nothing found.
