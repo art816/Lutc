@@ -2,9 +2,10 @@
 
 """ Sqlalchemy nms db manager. """
 
-#import sqlalchemy as al
+import sqlalchemy
 from sqlalchemy import Table, Column, Integer, String,\
     MetaData, ForeignKey, create_engine
+from sqlalchemy.engine import reflection
 
 
 class DatabaseManager():
@@ -24,23 +25,36 @@ class DatabaseManager():
         return self.metadata
 
     def read_table_from_db(self, table_name):
-        table = Table(table_name, self.metadata, autoload=True,
-                      autoload_with=self.engine)
-        return table
+        try:
+            table = Table(table_name, self.metadata, autoload=True,
+                          autoload_with=self.engine)
+            return table
+        except sqlalchemy.exc.NoSuchTableError:
+            print("table with name {} not exist".format(table_name))
+            # return 0
+
+    def read_all_table_from_db(self):
+        # TODO: comment - where is data?
+        # meta = MetaData()
+        self.metadata.reflect(bind=self.engine)
+        # insp = reflection.Inspector.from_engine(self.engine)
+        # print(insp.get_table_names())
+
+    def insert(self, table_name, column_velues):
+        table = self.metadata.tables[table_name]
+
+        conn = self.engine.connect()
+        conn.execute(table.insert(), column_velues)
+        conn.close()
 
     def save_data(self, name, parameters, values):
         self.metadata.tables[name].insert(parameters[0], values[0])
-        pass
 
     def get_devices_last_parameters(self):
         pass
 
     def get_devices_parameters(self):
         pass
-
-    def open(self):
-
-        return self.metadata
 
     def get_last_online(self):
         pass
