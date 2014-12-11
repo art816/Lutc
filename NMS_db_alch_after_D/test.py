@@ -45,10 +45,10 @@ class TestDatabaseManager(unittest.TestCase):
     #    DB.save_data(name, parameters, values)
     #    pass
 
-    #def test_open(self):
-    #    DB = DB_manager.DatabaseManager(cnf.database)
-    #    print(DB.open())
-    #    pass
+    def test_open(self):
+        db_manage = db_manager.DatabaseManager(cnf.test_database_name)
+        table = db_manage.read_table_from_db('dev1')
+        print(table.columns)
 
 
 
