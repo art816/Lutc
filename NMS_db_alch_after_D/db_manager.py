@@ -23,6 +23,11 @@ class DatabaseManager():
         self.metadata.create_all(self.engine)
         return self.metadata
 
+    def read_table_from_db(self, table_name):
+        table = Table(table_name, self.metadata, autoload=True,
+                      autoload_with=self.engine)
+        return table
+
     def save_data(self, name, parameters, values):
         self.metadata.tables[name].insert(parameters[0], values[0])
         pass
