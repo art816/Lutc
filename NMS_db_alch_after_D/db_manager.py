@@ -4,31 +4,30 @@
 
 import sqlalchemy
 from sqlalchemy import Table, Column, Integer, String, \
-    MetaData, ForeignKey, create_engine, select, asc, desc, between
+    MetaData, ForeignKey, create_engine, select, asc, between
 from sqlalchemy.engine import reflection
 import settings as cnf
 import device_mock
-
 
 
 class DatabaseOperator():
     ''' методы базы данных'''
 
     def __init__(self, database_name):
-        ''' создаем подключение к базе данных
-        инициализируем метаданные
-        database_name - имя базы данных'''
+        ''' Создаем подключение к базе данных.
+            Инициализируем метаданные.
+            database_name - имя базы данных
+        '''
         self.engine = create_engine(database_name, echo=False)
         # self.con = self.engine.connect()
         self.metadata = MetaData()
 
-    # [param_01_name, Integer], []  []
-    # PRIVATE
     def create_table(self, name, parameters):
-        ''' создание одной таблицы в базе данных
-        вся информация о создынной таблице сохраняется в метаданных
-        name - имя таблицы
-        parameters - словарь из имет столбцов и типов значений'''
+        ''' Создание одной таблицы в базе данных.
+            Вся информация о созданной таблице сохраняется в метаданных.
+            name - имя таблицы
+            parameters - словарь из имет столбцов и типов значений
+        '''
         columns = [Column('time', Integer, primary_key=True)]
         for param in parameters:
             columns.append(Column(param.name, param._type))
@@ -37,44 +36,39 @@ class DatabaseOperator():
         # return self.metadata
 
     def create_db(self, devices):
-        ''' создание таблиц соответстующих девайсам
-        devices - девайс для которого создается таблица'''
+        ''' Создание таблиц соответстующих девайсам
+            devices - девайс для которого создается таблица
+        '''
         for dev in devices.values():
             self.create_table(dev.name, dev.parameters)
 
     # TODO: do we need this?
     def read_table_from_db(self, table_name):
-        ''' получить данные о таблице с именем table_name
-        вся информация о полученной таблице сохраняется в метаданных
-        функция возвращаеи объект таблицы если она существует или None иначе
-        table_name - имя таблица информацию о который мы хотим получить'''
-        # self.metadata.clear()
+        ''' Получить данные о таблице с именем table_name.
+            Вся информация о полученной таблице сохраняется в метаданных
+            Функция возвращает объект таблицы если она существует или None иначе
+            table_name - имя таблица информацию о который мы хотим получить
+        '''
         try:
             table = Table(table_name, self.metadata, autoload=True,
                 autoload_with=self.engine)
             return table
         except sqlalchemy.exc.NoSuchTableError:
             print("table with name {} not exist".format(table_name))
-            # return 0
 
     # TODO: rename to open_db
     def read_all_table_from_db(self):
-        ''' получить данные о всех таблицах в базе данных.
-        вся информация о таблицах сохраняется в метаданных
+        ''' Получить данные о всех таблицах в базе данных.
+            вся информация о таблицах сохраняется в метаданных.
+            all data save in self.metadata
         '''
-        ''' all data save in self.metadata '''
-        # TODO: comment - where is data?
-        # meta = MetaData()
-        # self.metadata.clear()
         self.metadata.reflect(bind=self.engine)
-        # insp = reflection.Inspector.from_engine(self.engine)
-        # print(insp.get_table_names())
 
     # TODO: private, rename vElues
     def insert(self, table_name, column_values):
-        ''' сохранить запись в таблице
-        table_name - имя таблицы куда будем писать
-        column_values - словарь из имен имен параметров и значений параметров
+        ''' Сохранить запись в таблице.
+            table_name - имя таблицы куда будем писать
+            column_values - словарь из имен имен параметров и значений параметров
         '''
         table = self.metadata.tables[table_name]
         conn = self.engine.connect()
@@ -92,30 +86,31 @@ class DatabaseOperator():
         pass
 
     def delete_database(self):
-        ''' удалить все дынные из базы дынных
-        стереть метаданные '''
+        ''' Удалить все дынные из базы дынных
+            стереть метаданные
+        '''
         self.metadata.drop_all(bind=self.engine)
         self.metadata.clear()
 
     #TODO подумать об этой функции, можно сделать через metadata
     def get_all_tables(self, database_name=None):
-        ''' возвращает емена всех существующих таблиц
-        в базе данных database_name '''
-
+        ''' Возвращает емена всех существующих таблиц
+            в базе данных database_name
+        '''
         if database_name:
             insp = reflection.Inspector.from_engine(create_engine(database_name,
-                                                              echo=True))
+                                                                  echo=True))
         else:
             insp = reflection.Inspector.from_engine(self.engine)
         table_name = insp.get_table_names()
         return table_name
 
-    def parser(self, time, given_devices):
-        ''' переделать словарь (имя: объек класса)
-        в словарь (имя: значение параметра
-        возвращает словарь (имя: словарь)
+    @staticmethod
+    def parser(time, given_devices):
+        ''' Переделать словарь (имя: объект класса)
+            в словарь (имя: значение параметра
+            возвращает словарь (имя: словарь).
         '''
-
         table_name_column_values_dict = {}
 
         if type(given_devices) == dict:
@@ -131,7 +126,6 @@ class DatabaseOperator():
 
         elif type(given_devices) == device_mock.Device:
             params = given_devices.parameters
-            # print('\nparams', type(params), '\n')
             column_values_dict = {param.name: param.value for param in params}
             column_values_dict['time'] = time
             table_name_column_values_dict[given_devices.name] = column_values_dict
@@ -141,7 +135,6 @@ class DatabaseOperator():
             for device in given_devices:
                 if type(device) == device_mock.Device:
                     params = device.parameters
-                    # print('\nparams', type(params), '\n')
                     column_values_dict = {param.name: param.value for param in params}
                     column_values_dict['time'] = time
                     table_name_column_values_dict[device.name] = column_values_dict
@@ -153,24 +146,24 @@ class DatabaseOperator():
         else:
             print('PARSER from SAVE_DATA\n что за херню ты мне передаешь???')
 
-
-
     def save_data(self, time, given_devices):
-        ''' сохранить данные о девайсах в соответствующих таблицах
-        time - полученое время формата инт
-        given_devices - полученные объекты устройств (словарь (имя: девайс))
+        ''' Сохранить данные о девайсах в соответствующих таблицах.
+            time - полученое время формата инт.
+            given_devices - полученные объекты устройств (словарь (имя: девайс)).
         '''
-        # print('\ndict', (given_devices), '\n')
         tablename_column_values_dict = self.parser(time, given_devices)
         for device_name in tablename_column_values_dict:
             self.insert(device_name, tablename_column_values_dict[device_name])
 
+    # TODO: table_name->device_name
     def get_parameter_of_device(self, table_name, column_name=None,
                                 begin_time=None, end_time=None):
-        ''' получить все значения из колонок с именами из списка column_name
-        из таблицы table_name'''
+        ''' Получить все значения из колонок с именами из списка column_name
+            из таблицы table_name.
+        '''
 
         conn = self.engine.connect()
+        # TODO: remove this.
         try:
             table = self.metadata.tables[table_name]
         except KeyError:
@@ -189,11 +182,9 @@ class DatabaseOperator():
                 print('column names ', set(column_name) - exist_column_name,
                 'don`t exist')
                 return
-            # else:
-            #     rows_with_data = conn.execute(select(list_table))
         else:
-            list_table = [table]
-            # rows_with_data = conn.execute(select([table]))
+            list_table = [table.columns[column] for column in
+                          table.columns.keys()]
 
         if begin_time and end_time:
             rows_with_data = conn.execute(select(list_table).
@@ -209,12 +200,12 @@ class DatabaseOperator():
         return rows_with_data
 
     def get_column_name(self, table_name):
-        ''' получить имена всех колонок в таблице table_name'''
+        ''' Получить имена всех колонок в таблице table_name. '''
         table = self.metadata.tables[table_name]
         return table.columns.keys()
 
     def get_time_interval(self, table_name):
-        ''' получить временной интервал из таблицы с именем table_name '''
+        ''' Получить временной интервал из таблицы с именем table_name. '''
         conn = self.engine.connect()
         table = self.metadata.tables[table_name]
         rows_with_data = conn.execute(select([table.columns.time]).
@@ -223,10 +214,6 @@ class DatabaseOperator():
         return (row_list[0][0], row_list[-1][0])
 
 
-        # column_name=[]
-        # for column in insp.get_columns(table_name):
-        #     column_name.append(column['name'])
-        # print(' | '.join(column_name))
         # TODO:
         # 1. public and private methods.
         # 2. pylint - program to autocheck code for pep8
