@@ -5,16 +5,19 @@
 import settings as cnf
 from sqlalchemy import Integer
 
+
 class Device:
     def __init__(self, name, name_rus, protocol, parameters):
         self.name = name
         self.name_rus = name_rus
         self.protocol = protocol
         self.parameters = parameters  # list
-
+        self.params_dict = {param.name: param for param in self.parameters}
 
     def __repr__(self):
-        return 'name = {}, name_rus = {}, protocol = {}, parameters = {}'.format(self.name, self.name_rus, self.protocol, self.parameters)
+        return 'name = {}, name_rus = {}, protocol = {}, parameters = {}'.\
+            format(self.name, self.name_rus, self.protocol, self.parameters)
+
 
 class Parameter:
     def __init__(self, name, value=1, _type=None):
@@ -43,10 +46,8 @@ def create_devices():
     ''' создаем словарь в котором имени соответствует устройство '''
     dev_dict = {}
     for dev_name in cnf.dev_names:
-        parameter = []
-        for param in cnf.dev_parameters[dev_name]:
-            parameter.append(Parameter(name=param))
-        dev_dict[dev_name] = Device(dev_name, '', '', parameter)
+        dev_dict[dev_name] = create_one_device\
+            (dev_name, cnf.dev_parameters[dev_name]).get(dev_name)
     return dev_dict
 
 def create_one_device(dev_name, given_parameters):
@@ -55,7 +56,6 @@ def create_one_device(dev_name, given_parameters):
     for param in given_parameters:
         parameter.append(Parameter(name=param))
     dev_dict[dev_name] = Device(dev_name, '', '', parameter)
-
     return dev_dict
 
 
