@@ -17,19 +17,18 @@ import device_mock
 
 # @unittest.skip('not work')
 class TestDeviceMock(unittest.TestCase):
-    ''' тест модуля device_mock '''
+    '''Тест модуля device_mock.'''
 
     def test_devices_create(self):
-        """ создаются девайсы с параметрами из фаила settings """
-
+        """Создаются девайсы с параметрами из фаила settings."""
         devices = device_mock.create_devices()
         assert devices, 'got: {}'.format(devices)
         assert 'dev1' in devices
 
     def test_create_one_device(self):
-        """ создается один девайс с передоваемыми параметрами
-        type находится из соответствия parameters в фаиле settings"""
-
+        """Создается один девайс с передоваемыми параметрами
+           type находится из соответствия parameters в фаиле settings.
+        """
         test_table_name = 'test_table'
         test_table_columns = ['param1', 'param2']
         devices = device_mock.create_one_device(test_table_name,
@@ -38,34 +37,32 @@ class TestDeviceMock(unittest.TestCase):
 
 
 class TestDatabaseManagerPrimitive(unittest.TestCase):
-    ''' тестирование db_manager
-    функция create_table в этом модуле тестируется отдельно так как
-    необходима пустая база данных для ее тестирования
+    ''' Тестирование db_manager.
+        Функция create_table в этом модуле тестируется отдельно так как
+        необходима пустая база данных для ее тестирования
     '''
 
     def setUp(self):
-        ''' создание подключения к базе данных и инициализация метаданных'''
+        ''' Создание подключения к базе данных и инициализация метаданных.'''
         self.db_manage = db_manager.DatabaseOperator(cnf.test_database_name)
 
     def tearDown(self):
-        ''' удаляем фаил с базой данных'''
-
+        ''' Удаляем фаил с базой данных.'''
         try:
             os.remove(cnf.path_db)
         except FileNotFoundError:
             print('FileNotFoundError.', cnf.path_db, 'not exists')
 
     def test_create_table(self):
-        ''' создание одной таблицы
-        предварительно создается один девайс device_mock.create_one_device
-        создается таблица с его именем и параметрами
+        ''' Создание одной таблицы.
+            Предварительно создается один девайс device_mock.create_one_device
+            создается таблица с его именем и параметрами.
         '''
-
         # db_manage = db_manager.DatabaseOperator(cnf.test_database_name)
         test_table_name = 'test_table'
         test_table_columns = ['param1', 'param2']
         for dev in device_mock.create_one_device(test_table_name,
-                                                test_table_columns).values():
+                                                 test_table_columns).values():
             self.db_manage.create_table(dev.name, dev.parameters)
 
         existing_table_names = []
@@ -86,35 +83,26 @@ class TestDatabaseManagerPrimitive(unittest.TestCase):
 
 
 class TestDatabaseManager(unittest.TestCase):
-    ''' тестирование db_manager '''
+    ''' Тестирование db_manager '''
     def setUp(self):
-        ''' всегда создаем подключение к базе данных
-        создаем все девайсы из фаила settings
-        создаем таблицы соответствующие девайсам '''
+        ''' Всегда создаем подключение к базе данных.
+            Создаем все девайсы из фаила settings.
+            Создаем таблицы соответствующие девайсам
+        '''
         self.db_manage = db_manager.DatabaseOperator(cnf.test_database_name)
         self.devices = device_mock.create_devices()
         self.db_manage.create_db(self.devices)
         self.db_name = cnf.test_database_name
 
-    # for every test separated
     def tearDown(self):
-        ''' удаление фаила содержащего базу данных
-        можно удалять только информацию о базе данных из фаила
-        delete_database()'''
+        ''' Удаление фаила содержащего базу данных.
+            Можно удалять только информацию о базе данных из фаила
+            delete_database().
+        '''
         self.db_manage.delete_database()
-        # try:
-        #     os.remove(cnf.path_db)
-        # except FileNotFoundError:
-        #     print('FileNotFoundError.', cnf.path_db, 'not exists')
-
-    # @classmethod
-    # def setUpClass(cls):
-    # cls.xx = 124
-    # for all tests!
-    # def tearDownClass(self):
 
     def test_create_db(self):
-        ''' проверка созданных имен таблиц с желаемыми значениями'''
+        ''' Проверка созданных имен таблиц с желаемыми значениями.'''
         existing_table_names = []
         for table in self.db_manage.metadata.sorted_tables:
             existing_table_names.append(table.name)
@@ -128,9 +116,9 @@ class TestDatabaseManager(unittest.TestCase):
             exp_table_names)
 
     def test_read_table_from_db(self):
-        ''' получить данные о таблице с именем cnf.dev_names[0]
-        сравнить полученное имя таблицы с желаемым
-        сравнить существующие имена столбцов с желаемыми
+        ''' Получить данные о таблице с именем cnf.dev_names[0].
+            Сравнить полученное имя таблицы с желаемым.
+            Сравнить существующие имена столбцов с желаемыми.
         '''
         dev_name = cnf.dev_names[0]
         table = self.db_manage.read_table_from_db(dev_name)
@@ -148,8 +136,8 @@ class TestDatabaseManager(unittest.TestCase):
             .format(existing_namecolumns, namecolumns)
 
     def test_read_all_tables_from_db(self):
-        ''' получить данные о всех таблицах существующих в базе данных
-        сравнить полученные имена таблиц с желаемыми значениями
+        ''' Получить данные о всех таблицах существующих в базе данных.
+            Сравнить полученные имена таблиц с желаемыми значениями.
         '''
         self.db_manage.read_all_table_from_db()
 
@@ -162,13 +150,14 @@ class TestDatabaseManager(unittest.TestCase):
             .format(all_table_name, cnf.dev_names)
 
     def test_insert(self):
-        ''' вставить данные в таблицу с именем cnf.dev_names[0]
-        и проверить успешность данной операции
+        ''' Вставить данные в таблицу с именем cnf.dev_names[0]
+            и проверить успешность данной операции.
         '''
         dev_name = cnf.dev_names[0]
         column_values_dict = {param: value for param, value in
                               zip(cnf.dev_parameters[dev_name],
                                   cnf.test_values)}
+        #TODO: temp
         column_values_dict['time'] = int(time.time()*10**6)
         self.db_manage.insert(dev_name, column_values_dict)
 
@@ -183,69 +172,33 @@ class TestDatabaseManager(unittest.TestCase):
             param_values.append(list(row))
         rows_with_data.close()
         conn.close()
-        # param_values = list(row)
-        # print(param_values, '\n')
         param_values_without_time = [param[1:] for param in param_values]
-        # print(param_values_without_time, '\n')
         assert cnf.test_values in param_values_without_time, \
             'Insert. Not equal exists data:{} expected data:{}' \
             .format(param_values, cnf.test_values)
 
     def test_delete_database(self):
-        ''' удаляем все данные из базы дынных затираем метаданные'''
+        ''' Удаляем все данные из базы дынных затираем метаданные.'''
         self.db_manage.delete_database()
-        # self.db_manage.metadata.clear()
 
     def test_show_tables(self):
-        ''' показать имена всех существующих таблиц '''
-        # self.db_manage.delete_database()
-        # self.db_manage.metadata.clear()
-        # all_table_name = \
-        # all_table_name = self.db_manage.read_all_table_from_db()
-        # print(all_table_name)
-        # all_table_name = []
-        # for table in self.db_manage.metadata.tables:
-        #     all_table_name.append(table)
-        # print(all_table_name)
+        ''' Показать имена всех существующих таблиц. '''
         insp = self.db_manage.get_all_tables(self.db_name)
-        print(insp.get_table_names())
-        # assert insp
+        assert set(insp) - set(cnf.dev_names) == set()
 
-        # conn = self.db_manage.engine.connect()
-        # for table_name in insp.get_table_names():
-        #     print(table_name)
-        #     column_name=[]
-        #     for column in insp.get_columns(table_name):
-        #         column_name.append(column['name'])
-        #     print(' | '.join(column_name))
-        # table = self.db_manage.metadata.tables['dev1']
-        # rows_with_data = conn.execute(select([table]))
-        # for row in rows_with_data:
-        #     print(list(row))
-        # assert sorted(self.db_manage.show_tables(self.db_name)) == \
-        #        sorted(cnf.dev_names)
-
-
-    # @unittest.skip('dont work')
     # TODO доделать assert
     def test_save_data(self):
-        ''' переделать словарь (имя: объек класса)
-        в словарь (имя: значение параметра'''
-
+        ''' Сохранить данные.'''
         curent_time = int(time.time())
-
-        # self.db_manage.parser(curent_time, self.devices)
-
         self.db_manage.save_data(curent_time, self.devices)
         self.db_manage.save_data(curent_time + 20, self.devices)
-        # get_interval = self.db_manage.get_time_interval(device_name)
-        # assert get_interval == exp_interval, 'get:{} exp:{}'.format(
-        #     get_interval, exp_interval)
+        for dev_name in self.devices.keys():
+            rows_with_data = self.db_manage.get_parameter_of_device(dev_name)
+            assert len(rows_with_data.fetchall()) == 2
 
-    # @unittest.skip('dont work')
     def test_get_time_interval(self):
-        ''' получить интервал времен из таблицы parameter_name
-        и сравнить с ожидаемым
+        ''' Получить интервал времен из таблицы parameter_name
+            и сравнить с ожидаемым
         '''
         table_name = 'dev1'
         start_time = int(time.time())
@@ -258,37 +211,28 @@ class TestDatabaseManager(unittest.TestCase):
     def test_get_parameter_of_device(self):
         ''' Save data and then check if it loads from database. '''
         self.db_manage.save_data(int(time.time()), self.devices)
-        self.db_manage.save_data(int(time.time())+10, self.devices)
+        self.db_manage.save_data(int(time.time()) + 10, self.devices)
         rows_with_data = self.db_manage.get_parameter_of_device('dev1',
                                                 ['time', 'param1', 'param2'])
-
         assert rows_with_data
 
-        for table_name in self.db_manage.get_all_tables(self.db_name):
-            print(table_name)
-            print(self.db_manage.get_column_name(table_name))
-            # print(self.db_manage.get_parameter_of_device(table_name))
-            for row in self.db_manage.get_parameter_of_device(table_name):
-                print(row)
         if rows_with_data:
             for row in rows_with_data:
-                print(row)
                 assert row[1:] == (1, '1'), rows_with_data.close()
 
     def test_get_times_values(self):
         """ Get times and values from db.
-            begin_t and end_t should be integ"""
+            begin_t and end_t should be integer
+        """
         start_time = int(time.time())
         self.db_manage.save_data(start_time, self.devices)
-        self.db_manage.save_data(start_time+10, self.devices)
+        self.db_manage.save_data(start_time + 10, self.devices)
         rows_with_data = self.db_manage.get_parameter_of_device('dev1',
-                                ['time', 'param1', 'param2'], start_time, start_time+10)
+                                ['time', 'param1', 'param2'], start_time, start_time + 10)
         assert rows_with_data
         if rows_with_data:
             for row in rows_with_data:
-                print(row)
-                assert row[0] >= start_time and row[0] <= start_time+5
-        # assert
+                assert row[0] >= start_time and row[0] <= start_time + 10
 
 
 if __name__ == '__main__':
