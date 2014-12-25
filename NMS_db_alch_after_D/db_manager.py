@@ -39,7 +39,7 @@ class DatabaseOperator():
         ''' Создание таблиц соответстующих девайсам
             devices - девайс для которого создается таблица
         '''
-        for dev in devices.values():
+        for dev in devices:
             self.create_table(dev.name, dev.parameters)
 
     # TODO: do we need this?
@@ -99,7 +99,7 @@ class DatabaseOperator():
         '''
         if database_name:
             insp = reflection.Inspector.from_engine(create_engine(database_name,
-                                                                  echo=True))
+                                                                  echo=False))
         else:
             insp = reflection.Inspector.from_engine(self.engine)
         table_name = insp.get_table_names()
@@ -213,7 +213,10 @@ class DatabaseOperator():
         row_list = [row for row in rows_with_data]
         return (row_list[0][0], row_list[-1][0])
 
-
+    def get_times_values(self, device_name, param_name,
+                         begin_t=None, end_t=None):
+        return self.get_parameter_of_device(device_name, param_name,
+                         begin_t, end_t)
         # TODO:
         # 1. public and private methods.
         # 2. pylint - program to autocheck code for pep8

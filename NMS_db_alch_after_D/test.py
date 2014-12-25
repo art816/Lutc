@@ -23,7 +23,7 @@ class TestDeviceMock(unittest.TestCase):
         """Создаются девайсы с параметрами из фаила settings."""
         devices = device_mock.create_devices()
         assert devices, 'got: {}'.format(devices)
-        assert 'dev1' in devices
+        assert 'dev1' in [dev.name for dev in devices]
 
     def test_create_one_device(self):
         """Создается один девайс с передоваемыми параметрами
@@ -41,7 +41,6 @@ class TestDatabaseManagerPrimitive(unittest.TestCase):
         Функция create_table в этом модуле тестируется отдельно так как
         необходима пустая база данных для ее тестирования
     '''
-
     def setUp(self):
         ''' Создание подключения к базе данных и инициализация метаданных.'''
         self.db_manage = db_manager.DatabaseOperator(cnf.test_database_name)
@@ -58,11 +57,10 @@ class TestDatabaseManagerPrimitive(unittest.TestCase):
             Предварительно создается один девайс device_mock.create_one_device
             создается таблица с его именем и параметрами.
         '''
-        # db_manage = db_manager.DatabaseOperator(cnf.test_database_name)
         test_table_name = 'test_table'
         test_table_columns = ['param1', 'param2']
         for dev in device_mock.create_one_device(test_table_name,
-                                                 test_table_columns).values():
+                                                 test_table_columns):
             self.db_manage.create_table(dev.name, dev.parameters)
 
         existing_table_names = []
@@ -111,9 +109,8 @@ class TestDatabaseManager(unittest.TestCase):
         exp_table_names = sorted(cnf.dev_names)
 
         assert existing_table_names == exp_table_names, 'cant create db.\n' \
-                                                        ' tables existing={}, expected={}'.format(
-            existing_table_names,
-            exp_table_names)
+            ' tables existing={}, expected={}'.format(existing_table_names,
+                                                      exp_table_names)
 
     def test_read_table_from_db(self):
         ''' Получить данные о таблице с именем cnf.dev_names[0].
@@ -180,6 +177,8 @@ class TestDatabaseManager(unittest.TestCase):
     def test_delete_database(self):
         ''' Удаляем все данные из базы дынных затираем метаданные.'''
         self.db_manage.delete_database()
+        insp = self.db_manage.get_all_tables(self.db_name)
+        assert not insp
 
     def test_show_tables(self):
         ''' Показать имена всех существующих таблиц. '''
@@ -192,7 +191,7 @@ class TestDatabaseManager(unittest.TestCase):
         curent_time = int(time.time())
         self.db_manage.save_data(curent_time, self.devices)
         self.db_manage.save_data(curent_time + 20, self.devices)
-        for dev_name in self.devices.keys():
+        for dev_name in self.db_manage.get_all_tables(self.db_name):
             rows_with_data = self.db_manage.get_parameter_of_device(dev_name)
             assert len(rows_with_data.fetchall()) == 2
 
@@ -227,8 +226,9 @@ class TestDatabaseManager(unittest.TestCase):
         start_time = int(time.time())
         self.db_manage.save_data(start_time, self.devices)
         self.db_manage.save_data(start_time + 10, self.devices)
-        rows_with_data = self.db_manage.get_parameter_of_device('dev1',
-                                ['time', 'param1', 'param2'], start_time, start_time + 10)
+        rows_with_data = self.db_manage.get_times_values('dev1',
+                                        ['time', 'param1', 'param2'],
+                                        start_time, start_time + 10)
         assert rows_with_data
         if rows_with_data:
             for row in rows_with_data:

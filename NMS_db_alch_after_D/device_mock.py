@@ -44,19 +44,29 @@ def main():
 
 def create_devices():
     ''' создаем словарь в котором имени соответствует устройство '''
-    dev_dict = {}
+    # dev_dict = {}
+    # for dev_name in cnf.dev_names:
+    #     dev_dict[dev_name] = create_one_device\
+    #         (dev_name, cnf.dev_parameters[dev_name]).get(dev_name)
+    # return dev_dict
+    dev_list = []
     for dev_name in cnf.dev_names:
-        dev_dict[dev_name] = create_one_device\
-            (dev_name, cnf.dev_parameters[dev_name]).get(dev_name)
-    return dev_dict
+        dev_list.extend(create_one_device\
+            (dev_name, cnf.dev_parameters[dev_name]))
+    return dev_list
 
 def create_one_device(dev_name, given_parameters):
-    dev_dict = {}
+    # dev_dict = {}
+    # parameter = []
+    # for param in given_parameters:
+    #     parameter.append(Parameter(name=param))
+    # dev_dict[dev_name] = Device(dev_name, '', '', parameter)
+    dev_list = []
     parameter = []
     for param in given_parameters:
         parameter.append(Parameter(name=param))
-    dev_dict[dev_name] = Device(dev_name, '', '', parameter)
-    return dev_dict
+    dev_list.append(Device(dev_name, '', '', parameter))
+    return dev_list
 
 
 
