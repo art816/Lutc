@@ -17,6 +17,7 @@ class Test(unittest.TestCase):
         for i in range(10):
             self.random_list.append(random.randint(0, 100))
         self.heap = heapify.Heapify(self.random_list)
+        self.heap.build_max_heap()
 
     def test_left_list(self):
         """
@@ -64,9 +65,7 @@ class Test(unittest.TestCase):
         """
         """
         self.heap.build_max_heap()
-        for index in range(1, self.heap.heap_size):
-            self.assertGreaterEqual(self.heap.value[self.heap.parent(index)],
-                                    self.heap.value[index])
+        self.assert_heapify()
 
     def test_heap_sort(self):
         """
@@ -78,8 +77,44 @@ class Test(unittest.TestCase):
     def test_heap_maximum(self):
         """
         """
-        self.heap.build_max_heap()
         self.assertEqual(self.heap.heap_maximum(), max(self.random_list))
+
+
+    def test_heap_extract_max(self):
+        """
+        """
+        heap_size = self.heap.heap_size
+        max_element = self.heap.heap_extract_max()
+        self.assertEqual(max_element, max(self.random_list))
+        self.assertEqual(self.heap.heap_size, heap_size - 1)
+        self.assertEqual(self.heap.length(), heap_size - 1)
+        self.assert_heapify()
+
+    def test_increase_key(self):
+        index = 6
+        key = 101
+        self.heap.increase_key(index, key)
+        self.assertEqual(self.heap.value[0], key)
+        self.assert_heapify()
+
+    def test_heap_insert(self):
+        key = 105
+        self.heap.heap_insert(key)
+        self.assertEqual(self.heap.value[0], key)
+
+    def test_heap_delete(self):
+        index = 4
+        heap_size = self.heap.heap_size
+        heap_value = self.heap.value[index]
+        self.heap.heap_delete(index)
+        self.assertEqual(self.heap.heap_size, heap_size - 1)
+        self.assertNotEqual(self.heap.value[index], heap_value)
+        self.assert_heapify()
+
+    def assert_heapify(self):
+        for index in range(1, self.heap.heap_size):
+            self.assertGreaterEqual(self.heap.value[self.heap.parent(index)],
+                                    self.heap.value[index])
 
 
 if __name__ == '__main__':
