@@ -18,7 +18,7 @@ def sort_pass(a_list):
 def recurs_pass(sort_list, end_ind):
     """"""
     if end_ind > 0:
-        recurs_pass(sort_list, end_ind-1)
+        recurs_pass(sort_list, end_ind - 1)
         key = sort_list[end_ind]
         new_ind = end_ind - 1
         while new_ind >= 0 and sort_list[new_ind] > key:
@@ -40,23 +40,24 @@ def min_lin(sort_list):
     """Lineal find"""
     min_element = sort_list[0]
     for i in range(1, len(sort_list)):
-        min_element = sort_list[i] if sort_list[i] < min_element else min_element
+        min_element = sort_list[i] if sort_list[i] < min_element \
+            else min_element
     return min_element
 
 
 def sort_sort_merge(a_list):
     """Sort by merge"""
     sort_list = list(a_list)
-    sort_merge(sort_list, 0, len(sort_list)-1)
+    sort_merge(sort_list, 0, len(sort_list) - 1)
     return sort_list
 
 
 def sort_merge(sort_list, p, r):
     """Recursia"""
     if p < r:
-        q = (p+r)//2
+        q = (p + r) // 2
         sort_merge(sort_list, p, q)
-        sort_merge(sort_list, q+1, r)
+        sort_merge(sort_list, q + 1, r)
         merge(sort_list, p, q, r)
 
 
@@ -67,12 +68,13 @@ def merge(sort_list, p, q, r):
     l_list = []
     r_list = []
     for i in range(0, n1):
-        l_list.append(sort_list[p+i])
+        l_list.append(sort_list[p + i])
     for j in range(0, n2):
-        r_list.append(sort_list[q+j+1])
+        r_list.append(sort_list[q + j + 1])
     i = j = 0
-    for k in range(p, r+1):
-        if (j == n2 and i < n1) or (i < n1 and j < n2 and l_list[i] <= r_list[j]):
+    for k in range(p, r + 1):
+        if (j == n2 and i < n1) or \
+                (i < n1 and j < n2 and l_list[i] <= r_list[j]):
             sort_list[k] = l_list[i]
             i += 1
         elif j < n2:

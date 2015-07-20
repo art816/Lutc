@@ -15,7 +15,7 @@ def find_max_subarray(a_list):
 
     # print(a_list[:], sum_subarray, sum_wind, start_ind, end_ind)
 
-    for i in range(i_pol+1, len(a_list)):
+    for i in range(i_pol + 1, len(a_list)):
         # sum_wind += a_list[i]
         if rigth_ind:
             sum_rigth += a_list[i]
