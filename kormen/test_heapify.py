@@ -14,7 +14,7 @@ class Test(unittest.TestCase):
         """
         """
         self.random_list = []
-        for i in range(10):
+        for i in range(10 ** 4):
             self.random_list.append(random.randint(0, 100))
         self.heap = heapify.Heapify(self.random_list)
         self.heap.build_max_heap()
@@ -78,7 +78,6 @@ class Test(unittest.TestCase):
         """
         """
         self.assertEqual(self.heap.heap_maximum(), max(self.random_list))
-
 
     def test_heap_extract_max(self):
         """
