@@ -67,7 +67,8 @@ class Test(unittest.TestCase):
         :return:
         """
         list_value = self.create_random_tree(100)
-        self.assertEqual(self.tree.tree_maximum(self.tree.root).key, max(list_value))
+        self.assertEqual(self.tree.tree_maximum(self.tree.root).key,
+                           max(list_value))
 
     def test_minimum(self):
         """
@@ -75,7 +76,8 @@ class Test(unittest.TestCase):
         :return:
         """
         list_value = self.create_random_tree(100)
-        self.assertEqual(self.tree.tree_minimum(self.tree.root).key, min(list_value))
+        self.assertEqual(self.tree.tree_minimum(self.tree.root).key,
+                           min(list_value))
 
     def create_random_tree(self, num_element):
         """
@@ -106,6 +108,42 @@ class Test(unittest.TestCase):
         sorted_list = sorted(list_value)
         curr_index = sorted_list.index(curr_value)
         self.assertEqual(succes_list.key, sorted_list[curr_index + 1])
+
+    def test_transplant(self):
+        list_value = self.create_random_tree(100)
+        curr_value = list_value[10]
+        list_object = self.tree.tree_search(self.tree.root, curr_value)
+        sub_tree1 = self.tree.inorder_tree_walk(list_object.right)
+        # проверка, что можем заменить поддерево с корневым узлом list_object
+        # поддеревом с корневым узлом list)object.right
+        if list_object == list_object.parent.right:
+            self.tree.transplant(list_object, list_object.right)
+            self.assertEqual(list_object.right, list_object.parent.right)
+            sub_tree2 = self.tree.inorder_tree_walk(list_object.parent.right)
+        else:
+            self.tree.transplant(list_object, list_object.right)
+            self.assertEqual(list_object.right, list_object.parent.left)
+            sub_tree2 = self.tree.inorder_tree_walk(list_object.parent.left)
+        self.assertEqual(sub_tree1, sub_tree2)
+
+    def test_delete(self):
+        list_value = self.create_random_tree(100)
+        curr_value = list_value[10]
+        list_object = self.tree.tree_search(self.tree.root, curr_value)
+        self.tree.delete_list(list_object)
+        #TODO
+        #не знаю как нормально проверь, что правильно удалили элемент,
+        # кроме как проверить, что возвращается сортированый список значений.
+        res_value = self.tree.inorder_tree_walk(self.tree.root)
+        string_res = str(res_value)
+        list_with_string = string_res.replace('(', '').\
+                                          replace(')', '').\
+                                          replace('None', '').\
+                                          replace(',', '').\
+                                          rsplit('  ')
+        list_value = [int(num) for num in list_with_string]
+        self.assertEqual(list_value, sorted(list_value))
+
 
 
 
