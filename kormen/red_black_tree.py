@@ -74,10 +74,10 @@ class Tree(binary_tree.Tree):
                 else:
                     if list_object == list_object.parent.left:
                         list_object = list_object.parent
-                        self.left_rotate(list_object)
+                        self.right_rotate(list_object)
                     list_object.parent.color = 'black'
                     list_object.parent.parent.color = 'red'
-                    self.right_rotate(list_object.parent.parent)
+                    self.left_rotate(list_object.parent.parent)
         self.root.color = 'black'
 
     def left_rotate(self, list_object):
