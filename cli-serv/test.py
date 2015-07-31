@@ -10,6 +10,7 @@ import settings as cfg
 import sys
 sys.path.append('../create_db')
 import create_db as lite
+import
 
 class TestDB(unittest.TestCase):
 

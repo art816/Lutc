@@ -1,5 +1,5 @@
 __author__ = 'art'
 import re
-ipPattern = re.compile(r'(\W|\w+)*')
-a_rez = ipPattern.search('12-3.sdf')
+ipPattern = re.compile(r'(\(.*\))')
+a_rez = ipPattern.search('(er, f, ,f gserg).sdf')
 print(a_rez.group())
