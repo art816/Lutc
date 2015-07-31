@@ -27,22 +27,18 @@ class Tree(object):
         self.root = None
         self.high = 0
 
-    def __repr__(self):
-        print(str(self.print_tree(self.root)).replace('(', '').
-        replace(')','').
-        replace('\'', '').
-        replace(' ', ''))
-        return 'end'
+    # def __repr__(self):
+    #     for return_value in self.inorder_tree_walk(self.root):
+    #         while return_value is tuple:
+    #
+    #     return 'end'
 
-    def print_tree(self, list_tree):
-        """
-
-        :return:
-        """
-        if list_tree is not None:
-            return(list_tree.key, '\n',
-                   self.print_tree(list_tree.left),
-                   self.print_tree(list_tree.right))
+    # def print_tree(self, list_tree):
+    #     """
+    #
+    #     :return:
+    #     """
+    #     return
 
 
     def inorder_tree_walk(self, list_tree):
@@ -52,7 +48,7 @@ class Tree(object):
         """
         if list_tree is not None:
             return self.inorder_tree_walk(list_tree.left), list_tree.key,\
-                   self.inorder_tree_walk(list_tree.right)
+                    self.inorder_tree_walk(list_tree.right)
 
     def tree_search(self, list_object, key):
         """
@@ -125,4 +121,38 @@ class Tree(object):
             member_curent_list.left = list_object
         else:
             member_curent_list.right = list_object
+
+    def transplant(self, old_subroot, new_subroot):
+        """
+
+        :return:
+        """
+        if old_subroot is None:
+            self.root = new_subroot
+        elif old_subroot == old_subroot.parent.left:
+            old_subroot.parent.left = new_subroot
+        else:
+            old_subroot.parent.right = new_subroot
+        if new_subroot is not None:
+            new_subroot.parent = old_subroot.parent
+
+    def delete_list(self, list_object):
+        """
+
+        :param list_object:
+        :return:
+        """
+        if list_object.left is None:
+            self.transplant(list_object, list_object.right)
+        elif list_object.right is None:
+            self.transplant(list_object, list_object.left)
+        else:
+            minimum_list_object = self.tree_minimum(list_object.right)
+            if minimum_list_object.parent is not list_object:
+                self.transplant(minimum_list_object, minimum_list_object.right)
+                minimum_list_object.right = list_object.right
+                minimum_list_object.right.parent = minimum_list_object
+            self.transplant(list_object, minimum_list_object)
+            minimum_list_object.left = list_object.left
+            minimum_list_object.left.parent = minimum_list_object
 
