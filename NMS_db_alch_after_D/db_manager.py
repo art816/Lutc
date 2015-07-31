@@ -3,11 +3,13 @@
 """ Sqlalchemy nms db manager. """
 
 import sqlalchemy
-from sqlalchemy import Table, Column, Integer, String, \
-    MetaData, ForeignKey, create_engine, select, asc, between
+from sqlalchemy import Table, Column, Float,Integer, String, \
+        MetaData, ForeignKey, create_engine, select, asc, between, Boolean
 from sqlalchemy.engine import reflection
 import settings as cnf
 import device_mock
+import traceback, sys, inspect
+import time
 
 
 class DatabaseOperator():
@@ -21,6 +23,7 @@ class DatabaseOperator():
         self.engine = create_engine(database_name, echo=False)
         # self.con = self.engine.connect()
         self.metadata = MetaData()
+        self.engine
 
     def create_table(self, name, parameters):
         ''' Создание одной таблицы в базе данных.
@@ -28,9 +31,14 @@ class DatabaseOperator():
             name - имя таблицы
             parameters - словарь из имет столбцов и типов значений
         '''
+        type_conversion_dictionary = {"int": Integer,
+                                      "float": Float,
+                                      "str": String,
+                                      "bool": Boolean}
         columns = [Column('time', Integer, primary_key=True)]
         for param in parameters:
-            columns.append(Column(param.name, param._type))
+            columns.append(Column(param.name,
+                                  type_conversion_dictionary[param.mtype]))
         Table(name, self.metadata, *columns)
         self.metadata.create_all(self.engine)
         # return self.metadata
@@ -85,6 +93,14 @@ class DatabaseOperator():
     def get_last_online(self):
         pass
 
+    def get_size(self):
+        ''' Получить размер базы данных в байтах
+        '''
+        size = 0.0
+        for table_name in self.get_all_tables():
+            size += self.get_parameter_of_device(table_name).__sizeof__()
+        return size
+
     def delete_database(self):
         ''' Удалить все дынные из базы дынных
             стереть метаданные
@@ -133,14 +149,14 @@ class DatabaseOperator():
 
         elif type(given_devices) == list or type(given_devices) == tuple:
             for device in given_devices:
-                if type(device) == device_mock.Device:
+                #if type(device) == device_mock.Device:
                     params = device.parameters
                     column_values_dict = {param.name: param.value for param in params}
                     column_values_dict['time'] = time
                     table_name_column_values_dict[device.name] = column_values_dict
-                else:
-                    print('PARSER from SAVE_DATA\n что за херню ты мне передаешь???')
-                    return
+                #else:
+                 #   print('PARSER from SAVE_DATA\n что за херню ты мне передаешь???')
+                  #  return
             return table_name_column_values_dict
 
         else:
@@ -151,9 +167,25 @@ class DatabaseOperator():
             time - полученое время формата инт.
             given_devices - полученные объекты устройств (словарь (имя: девайс)).
         '''
-        tablename_column_values_dict = self.parser(time, given_devices)
-        for device_name in tablename_column_values_dict:
-            self.insert(device_name, tablename_column_values_dict[device_name])
+        for device in given_devices:
+                #if type(device) == device_mock.Device:
+
+            #table_name_column_values_dict[device.name] = column_values_dict
+                #else:
+                 #   print('PARSER from SAVE_DATA\n что за херню ты мне передаешь???')
+                  #  return
+            param_value_dict = {}
+
+            for  param_name in device.params_dict.keys():
+                param_value_dict[param_name] = device.params_dict[param_name].value
+
+            param_value_dict['time'] = time
+            self.insert(device.name, param_value_dict)
+
+            #eturn table_name_column_values_dict
+
+        #for device_name in tablename_column_values_dict:
+         #   self.insert(device_name, tablename_column_values_dict[device_name])
 
     # TODO: table_name->device_name
     def get_parameter_of_device(self, table_name, column_name=None,
@@ -172,6 +204,8 @@ class DatabaseOperator():
             return
 
         if column_name:
+            if not type(column_name) == list:
+                column_name = [column_name]
             try:
                 list_table = [table.columns[column] for column in column_name]
             except KeyError:
@@ -197,7 +231,7 @@ class DatabaseOperator():
                 where(table.columns['time'] <= end_time))
         else:
             rows_with_data = conn.execute(select(list_table))
-        return rows_with_data
+        return [list(a) if len(a)>1 else a[0] for a in rows_with_data]
 
     def get_column_name(self, table_name):
         ''' Получить имена всех колонок в таблице table_name. '''
@@ -215,8 +249,18 @@ class DatabaseOperator():
 
     def get_times_values(self, device_name, param_name,
                          begin_t=None, end_t=None):
+        param_name = ['time', param_name]
         return self.get_parameter_of_device(device_name, param_name,
                          begin_t, end_t)
+
+    def _print(self):
+        '''Print all tables with data'''
+        for table_name in self.get_all_tables():
+            print(table_name)
+            print(self.get_column_name(table_name))
+            for row in self.get_parameter_of_device(table_name):
+                print(row)
+
         # TODO:
         # 1. public and private methods.
         # 2. pylint - program to autocheck code for pep8

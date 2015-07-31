@@ -17,6 +17,7 @@ def tuple_data():
     data.append(time.time())
     data.append(psutil.cpu_times_percent())
     data.append(psutil.swap_memory())
+    # print(data)
     return tuple(data)
 
 
