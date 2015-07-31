@@ -1,6 +1,5 @@
 __author__ = 'art'
 
-
 import unittest
 import random
 
@@ -11,12 +10,13 @@ class Test(unittest.TestCase):
     """
 
     """
+
     def setUp(self):
         self.tree = red_black_tree.Tree()
-        self.create_random_tree(10)
+        self.create_random_tree(20)
 
     def create_random_tree(self, num_element):
-        """
+        """дфшра дфруша фжцуазэуцаоуцаушрафушар666дшо6фу6дшфудша2уар2цуа5а◘уа8ибфцуоиафцуиа
 
         :return:
         """
@@ -33,7 +33,6 @@ class Test(unittest.TestCase):
 
     def test_red_black(self):
         """
-
         :param list_object must be root
         :return:
         """
@@ -42,7 +41,6 @@ class Test(unittest.TestCase):
 
     def red_list_have_black_child(self, list_object):
         """
-
         :param list_object:
         :return:
         """
@@ -55,10 +53,9 @@ class Test(unittest.TestCase):
 
     def test_len_simple_road(self):
         """
-
         :return:
         """
-        #TODO patern
+        # TODO patern
         rez_string = str(self.len_sub_tree(self.tree.root))
         print(rez_string)
         centr = rez_string.find('root')
@@ -98,7 +95,6 @@ class Test(unittest.TestCase):
         print('right = ', max_count, 'red_black_tree = ', rb_depth_tree)
 
 
-
     def len_sub_tree(self, list_object):
         """
 
@@ -107,7 +103,45 @@ class Test(unittest.TestCase):
         """
         if list_object is not self.tree.nil:
             return (self.len_sub_tree(list_object.left),
-                    ('root' if list_object == self.tree.root else 1 if list_object.color == 'black' else 0,
-                     list_object.key),
+                    (
+                        'root' if list_object == self.tree.root else 1 if list_object.color == 'black' else 0,
+                        list_object.key),
                     self.len_sub_tree(list_object.right))
+
+    def test_transplant(self):
+        list_value = self.create_random_tree(100)
+        curr_value = list_value[10]
+        list_object = self.tree.tree_search(self.tree.root, curr_value)
+        sub_tree1 = self.tree.inorder_tree_walk(list_object.right)
+        # проверка, что можем заменить поддерево с корневым узлом list_object
+        # поддеревом с корневым узлом list)object.right
+        if list_object == list_object.parent.right:
+            self.tree.transplant(list_object, list_object.right)
+            self.assertEqual(list_object.right, list_object.parent.right)
+            sub_tree2 = self.tree.inorder_tree_walk(list_object.parent.right)
+        else:
+            self.tree.transplant(list_object, list_object.right)
+            self.assertEqual(list_object.right, list_object.parent.left)
+            sub_tree2 = self.tree.inorder_tree_walk(list_object.parent.left)
+        self.assertEqual(sub_tree1, sub_tree2)
+
+    def test_delete(self):
+        list_value = self.create_random_tree(100)
+        curr_value = list_value[10]
+        list_object = self.tree.tree_search(self.tree.root, curr_value)
+        self.tree.delete_list(list_object)
+        # TODO
+        # не знаю как нормально проверить, что правильно удалили элемент,
+        # кроме как проверить, что возвращается сортированый список значений.
+        res_value = self.tree.inorder_tree_walk(self.tree.root)
+        print(res_value)
+        string_res = str(res_value)
+        list_with_string = string_res.replace('(', ''). \
+            replace(')', ''). \
+            replace('None', ''). \
+            replace(',', ''). \
+            rsplit('  ')
+        list_value = [int(num) for num in list_with_string]
+        print('list_value = ', list_value)
+        self.assertEqual(list_value, sorted(list_value))
 

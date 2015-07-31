@@ -3,7 +3,7 @@ __author__ = 'art'
 
 import binary_tree
 
-class Tree(binary_tree.Tree):
+class Tree(object):
     """
 
     """
@@ -113,12 +113,144 @@ class Tree(binary_tree.Tree):
         else:
             list_object.parent.left = curent_list
         curent_list.right = list_object
-        list_object.parent = curent_list    
+        list_object.parent = curent_list
 
+    def inorder_tree_walk(self, list_tree):
+        """
+
+        :return:
+        """
+        if list_tree is not self.nil:
+            return self.inorder_tree_walk(list_tree.left), list_tree.key,\
+                    self.inorder_tree_walk(list_tree.right)
+
+    def transplant(self, old_subroot, new_subroot):
+        """
+
+        :return:
+        """
+        print('transplate')
+        if old_subroot is self.nil:
+            self.root = new_subroot
+        elif old_subroot == old_subroot.parent.left:
+            old_subroot.parent.left = new_subroot
+        else:
+            old_subroot.parent.right = new_subroot
+        new_subroot.parent = old_subroot.parent
+
+    def delete_list(self, list_object):
+        """
+
+        :param list_object:
+        :return:
+        """
+        print('delete')
+        curent_list = list_object
+        curent_list_original_color = curent_list.color
+        if list_object.left is self.nil:
+            member_list = list_object.right
+            self.transplant(list_object, list_object.right)
+        elif list_object.right is self.nil:
+            self.transplant(list_object, list_object.left)
+        else:
+            curent_list = self.tree_minimum(list_object.right)
+            curent_list_original_color = curent_list.color
+            member_list = curent_list.right
+            if curent_list.parent is not list_object:
+                member_list.parent = curent_list
+            else:
+                self.transplant(curent_list, curent_list.right)
+                curent_list.right = list_object.right
+                curent_list.right.parent = curent_list
+            self.transplant(list_object, curent_list)
+            curent_list.left = list_object.left
+            curent_list.left.parent = curent_list
+            curent_list.color = list_object.color
+        if curent_list_original_color == 'black':
+            self.delete_fixup(member_list)
+
+    def delete_fixup(self, list_object):
+        """
+        """
+        print('delete_fixup')
+        while list_object is not self.nil and\
+                list_object.color == 'black':
+            if list_object == list_object.parent.left:
+                curent_list = list_object.parent.right
+                if curent_list.color == 'red':
+                    curent_list.color = 'black'
+                    list_object.parent.color = 'red'
+                    self.left_rotate(list_object.parent)
+                    curent_list = list_object.parent.right
+                if curent_list.left.color == 'black' and\
+                        curent_list.right.color == 'black':
+                    curent_list.color = 'red'
+                    list_object = list_object.parent
+                else:
+                    if curent_list.right.color == 'black':
+                        curent_list.left.color = 'black'
+                        curent_list.color = 'red'
+                        self.right_rotate(curent_list)
+                        curent_list = list_object.parent.right
+                    curent_list.color = list_object.parent.color
+                    list_object.parent.color = 'black'
+                    curent_list.right.color = 'black'
+                    self.left_rotate(list_object.parent)
+                    list_object = self.root
+            else:
+                if curent_list.color == 'red':
+                    curent_list.color = 'black'
+                    list_object.parent.color = 'red'
+                    self.right_rotate(list_object.parent)
+                    curent_list = list_object.parent.left
+                if curent_list.right.color == 'black' and\
+                        curent_list.left.color == 'black':
+                    curent_list.color = 'red'
+                    list_object = list_object.parent
+                else:
+                    if curent_list.left.color == 'black':
+                        curent_list.right.color = 'black'
+                        curent_list.color = 'red'
+                        self.left_rotate(curent_list)
+                        curent_list = list_object.parent.left
+                    curent_list.color = list_object.parent.color
+                    list_object.parent.color = 'black'
+                    curent_list.left.color = 'black'
+                    self.right_rotate(list_object.parent)
+                    list_object = self.root
+        list_object.color = 'black'
+
+    def tree_minimum(self, list_object):
+        """
+        list_object must be root
+        :return:
+        """
+        while list_object.left is not self.nil:
+            list_object = list_object.left
+        return list_object
+
+    def tree_maximum(self, list_oblect):
+        """
+        list_object must be root
+        :return:
+        """
+        while list_oblect.right is not self.nil:
+            list_oblect = list_oblect.right
+        return list_oblect
+
+    def tree_search(self, list_object, key):
+        """
+        list_object must be root
+        :param key:
+        :return:
+        """
+        while list_object is not self.nil and key != list_object.key:
+            if key < list_object.key:
+                list_object = list_object.left
+            else:
+                list_object = list_object.right
+        return list_object
                 
-                    
-        
-
 class ListObject(binary_tree.ListObject):
     """
 
