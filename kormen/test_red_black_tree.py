@@ -10,10 +10,10 @@ class Test(unittest.TestCase):
     """
 
     """
-
-    def setUp(self):
-        self.tree = red_black_tree.Tree()
-        self.create_random_tree(20)
+    @classmethod
+    def setUpClass(cls):
+        cls.tree = red_black_tree.Tree()
+        cls.create_random_tree(cls, 10**6)
 
     def create_random_tree(self, num_element):
         """дфшра дфруша фжцуазэуцаоуцаушрафушар666дшо6фу6дшфудша2уар2цуа5а◘уа8ибфцуоиафцуиа
@@ -57,7 +57,7 @@ class Test(unittest.TestCase):
         """
         # TODO patern
         rez_string = str(self.len_sub_tree(self.tree.root))
-        print(rez_string)
+        # print(rez_string)
         centr = rez_string.find('root')
         # print(rez_string[centr])
         count = -1
@@ -144,4 +144,4 @@ class Test(unittest.TestCase):
         list_value = [int(num) for num in list_with_string]
         print('list_value = ', list_value)
         self.assertEqual(list_value, sorted(list_value))
-
+        # self.assertTrue(False)
