@@ -14,6 +14,7 @@ class Tree(object):
         """
         self.nil = ListObject()
         self.nil.color = 'black'
+        self.nil.size = 0
         self.root = self.nil
         self.nil.left = self.root
         self.nil.right = self.root
@@ -28,6 +29,7 @@ class Tree(object):
         member_curent_list = self.nil
         curent_list = self.root
         while curent_list is not self.nil:
+            curent_list.size += 1
             member_curent_list = curent_list
             if list_object.key < curent_list.key:
                 curent_list = curent_list.left
@@ -97,6 +99,8 @@ class Tree(object):
             list_object.parent.right = curent_list
         curent_list.left = list_object
         list_object.parent = curent_list
+        curent_list.size = list_object.size
+        list_object.size = list_object.left.size + list_object.right.size + 1
         
     def right_rotate(self, list_object):
         """
@@ -114,6 +118,8 @@ class Tree(object):
             list_object.parent.left = curent_list
         curent_list.right = list_object
         list_object.parent = curent_list
+        curent_list.size = list_object.size
+        list_object.size = list_object.left.size + list_object.right.size + 1
 
     def inorder_tree_walk(self, list_tree):
         """
@@ -253,8 +259,14 @@ class Tree(object):
                 
 class ListObject(binary_tree.ListObject):
     """
+     """
 
-    """
     def __init__(self, key=None):
+        """
+
+        :param key:
+        :return:
+        """
         super().__init__(key)
         self.color = None
+        self.size = 1

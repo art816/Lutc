@@ -13,7 +13,7 @@ class Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tree = red_black_tree.Tree()
-        cls.create_random_tree(cls, 10**6)
+        cls.list_value = cls.create_random_tree(cls, 10)
 
     def create_random_tree(self, num_element):
         """дфшра дфруша фжцуазэуцаоуцаушрафушар666дшо6фу6дшфудша2уар2цуа5а◘уа8ибфцуоиафцуиа
@@ -28,6 +28,10 @@ class Test(unittest.TestCase):
         return list_value
 
     def test_tree(self):
+        """
+
+        :return:
+        """
         self.assertEqual(self.tree.root.color, 'black')
         self.assertEqual(self.tree.nil.color, 'black')
 
@@ -93,7 +97,8 @@ class Test(unittest.TestCase):
             if count > max_count:
                 max_count = count
         print('right = ', max_count, 'red_black_tree = ', rb_depth_tree)
-
+        res_value = self.tree.inorder_tree_walk(self.tree.root)
+        print(res_value)
 
     def len_sub_tree(self, list_object):
         """
@@ -109,8 +114,9 @@ class Test(unittest.TestCase):
                     self.len_sub_tree(list_object.right))
 
     def test_transplant(self):
-        list_value = self.create_random_tree(100)
-        curr_value = list_value[10]
+        # self.list_value = self.create_random_tree(1)
+        curr_value = self.list_value[random.randint(
+                        0, len(self.list_value) - 1)]
         list_object = self.tree.tree_search(self.tree.root, curr_value)
         sub_tree1 = self.tree.inorder_tree_walk(list_object.right)
         # проверка, что можем заменить поддерево с корневым узлом list_object
@@ -126,22 +132,23 @@ class Test(unittest.TestCase):
         self.assertEqual(sub_tree1, sub_tree2)
 
     def test_delete(self):
-        list_value = self.create_random_tree(100)
-        curr_value = list_value[10]
+        # self.list_value = self.create_random_tree(100)
+        curr_value = self.list_value[random.randint(
+                        0, len(self.list_value) - 1)]
         list_object = self.tree.tree_search(self.tree.root, curr_value)
         self.tree.delete_list(list_object)
         # TODO
         # не знаю как нормально проверить, что правильно удалили элемент,
         # кроме как проверить, что возвращается сортированый список значений.
         res_value = self.tree.inorder_tree_walk(self.tree.root)
-        print(res_value)
+        # print(res_value)
         string_res = str(res_value)
         list_with_string = string_res.replace('(', ''). \
             replace(')', ''). \
             replace('None', ''). \
             replace(',', ''). \
             rsplit('  ')
-        list_value = [int(num) for num in list_with_string]
-        print('list_value = ', list_value)
-        self.assertEqual(list_value, sorted(list_value))
+        self.list_value = [int(num) for num in list_with_string]
+        # print('list_value = ', list_value)
+        self.assertEqual(self.list_value, sorted(self.list_value))
         # self.assertTrue(False)
