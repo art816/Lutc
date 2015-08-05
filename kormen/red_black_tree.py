@@ -256,10 +256,38 @@ class Tree(object):
             else:
                 list_object = list_object.right
         return list_object
-                
+
+    def os_select(self, list_object, rank):
+        """
+
+        :param list_obgect: must be root
+        :param rank:
+        :return:
+        """
+        seach_rank = list_object.left.size + 1
+        print(rank, seach_rank)
+        if seach_rank == rank:
+            print('qweqweqrqfsdfsdf')
+            return list_object
+        elif rank < seach_rank:
+            return self.os_select(list_object.left, rank)
+        else:
+            return self.os_select(list_object.right, rank - seach_rank)
+
+    def os_rank(self, list_object):
+        """
+        """
+        seach_rank = list_object.left.size + 1
+        curent_list = list_object
+        while curent_list is not self.root:
+            if curent_list == curent_list.parent.right:
+                seach_rank += curent_list.parent.left.size + 1
+            curent_list = curent_list.parent
+        return seach_rank
+
 class ListObject(binary_tree.ListObject):
     """
-     """
+    """
 
     def __init__(self, key=None):
         """

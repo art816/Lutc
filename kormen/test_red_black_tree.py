@@ -12,16 +12,17 @@ class Test(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
+        cls.num_element = 20
         cls.tree = red_black_tree.Tree()
-        cls.list_value = cls.create_random_tree(cls, 10)
+        cls.list_value = cls.create_random_tree(cls)
 
-    def create_random_tree(self, num_element):
+    def create_random_tree(self):
         """дфшра дфруша фжцуазэуцаоуцаушрафушар666дшо6фу6дшфудша2уар2цуа5а◘уа8ибфцуоиафцуиа
 
         :return:
         """
         list_value = []
-        for i in range(num_element):
+        for i in range(self.num_element):
             list_value.append(random.randint(1, 100))
             list_object = red_black_tree.ListObject(list_value[-1])
             self.tree.tree_insert(list_object)
@@ -152,3 +153,33 @@ class Test(unittest.TestCase):
         # print('list_value = ', list_value)
         self.assertEqual(self.list_value, sorted(self.list_value))
         # self.assertTrue(False)
+
+    def test_select_rank(self):
+        """
+
+        :return:
+        """
+        rank = self.tree.os_rank(self.tree.root) - 1
+        list_object = self.tree.os_select(self.tree.root, rank)
+        self.assertTrue(list_object)
+        seach_rank = self.tree.os_rank(list_object)
+        self.assertEqual(rank, seach_rank)
+
+    def test_root_rank(self):
+        """
+
+        :return:
+        """
+        seach_rank = self.tree.os_rank(self.tree.root)
+        self.assertEqual(seach_rank, self.tree.root.left.size + 1)
+        self.assertEqual(self.tree.root.left.size +
+                         self.tree.root.right.size + 1,
+            self.tree.root.size)
+        self.assertEqual(self.tree.root.left.size +
+                         self.tree.root.right.size + 1,
+            self.num_element)
+
+
+
+    def test_insert_with_size(self):
+        self.assertEqual(self.tree.root.size, self.num_element)
