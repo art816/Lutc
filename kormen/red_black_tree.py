@@ -3,6 +3,8 @@ __author__ = 'art'
 
 import binary_tree
 
+
+
 class Tree(object):
     """
 
@@ -101,7 +103,7 @@ class Tree(object):
         list_object.parent = curent_list
         curent_list.size = list_object.size
         list_object.size = list_object.left.size + list_object.right.size + 1
-        
+
     def right_rotate(self, list_object):
         """
         """
@@ -127,13 +129,13 @@ class Tree(object):
         :return:
         """
         if list_tree is not self.nil:
-            return self.inorder_tree_walk(list_tree.left), list_tree.key,\
-                    self.inorder_tree_walk(list_tree.right)
+            return self.inorder_tree_walk(list_tree.left), list_tree.key, \
+                   self.inorder_tree_walk(list_tree.right)
 
     def transplant(self, old_subroot, new_subroot):
         """
 
-        :return:
+        :return: different_size. How change size of root.
         """
         print('transplate')
         if old_subroot is self.nil:
@@ -143,6 +145,16 @@ class Tree(object):
         else:
             old_subroot.parent.right = new_subroot
         new_subroot.parent = old_subroot.parent
+        different_size = new_subroot.size - old_subroot.size
+        self.return_true_size(new_subroot, different_size)
+        return different_size
+
+    def return_true_size(self, new_subroot, different_size):
+        up_parent = new_subroot.parent
+        while up_parent is not self.root:
+            up_parent.size += different_size
+            up_parent = up_parent.parent
+        self.root.size += different_size
 
     def delete_list(self, list_object):
         """
@@ -150,28 +162,40 @@ class Tree(object):
         :param list_object:
         :return:
         """
-        print('delete')
+        print('delete', self.root.size)
         curent_list = list_object
         curent_list_original_color = curent_list.color
         if list_object.left is self.nil:
             member_list = list_object.right
             self.transplant(list_object, list_object.right)
         elif list_object.right is self.nil:
+            member_list = list_object.left
             self.transplant(list_object, list_object.left)
         else:
             curent_list = self.tree_minimum(list_object.right)
             curent_list_original_color = curent_list.color
             member_list = curent_list.right
-            if curent_list.parent is not list_object:
+            self.true_size(self.root)
+            if curent_list.parent is list_object:
                 member_list.parent = curent_list
+                assert(self.root.size == 200), "{}".format(self.root.size)
+                # curent_list.size += list_object.left.size
             else:
                 self.transplant(curent_list, curent_list.right)
+                assert(self.root.size == 199), "{}".format(self.root.size)
                 curent_list.right = list_object.right
                 curent_list.right.parent = curent_list
+                curent_list.size = list_object.right.size + 1
+                self.true_size(self.root)
+            curent_list.size += list_object.left.size
             self.transplant(list_object, curent_list)
             curent_list.left = list_object.left
             curent_list.left.parent = curent_list
             curent_list.color = list_object.color
+            assert(self.root.size == 199), "{}".format(self.root.size)
+            self.true_size(self.root)
+            self.true_size(self.root)
+            assert(self.root.size == 199), "{}".format(self.root.size)
         if curent_list_original_color == 'black':
             self.delete_fixup(member_list)
 
@@ -179,8 +203,8 @@ class Tree(object):
         """
         """
         print('delete_fixup')
-        while list_object is not self.nil and\
-                list_object.color == 'black':
+        while list_object is not self.nil and \
+                        list_object.color == 'black':
             if list_object == list_object.parent.left:
                 curent_list = list_object.parent.right
                 if curent_list.color == 'red':
@@ -188,8 +212,8 @@ class Tree(object):
                     list_object.parent.color = 'red'
                     self.left_rotate(list_object.parent)
                     curent_list = list_object.parent.right
-                if curent_list.left.color == 'black' and\
-                        curent_list.right.color == 'black':
+                if curent_list.left.color == 'black' and \
+                                curent_list.right.color == 'black':
                     curent_list.color = 'red'
                     list_object = list_object.parent
                 else:
@@ -209,8 +233,8 @@ class Tree(object):
                     list_object.parent.color = 'red'
                     self.right_rotate(list_object.parent)
                     curent_list = list_object.parent.left
-                if curent_list.right.color == 'black' and\
-                        curent_list.left.color == 'black':
+                if curent_list.right.color == 'black' and \
+                                curent_list.left.color == 'black':
                     curent_list.color = 'red'
                     list_object = list_object.parent
                 else:
@@ -264,10 +288,9 @@ class Tree(object):
         :param rank:
         :return:
         """
+        assert list_object.size != 0
         seach_rank = list_object.left.size + 1
-        print(rank, seach_rank)
         if seach_rank == rank:
-            print('qweqweqrqfsdfsdf')
             return list_object
         elif rank < seach_rank:
             return self.os_select(list_object.left, rank)
@@ -277,6 +300,7 @@ class Tree(object):
     def os_rank(self, list_object):
         """
         """
+        assert list_object.size != 0
         seach_rank = list_object.left.size + 1
         curent_list = list_object
         while curent_list is not self.root:
@@ -284,6 +308,20 @@ class Tree(object):
                 seach_rank += curent_list.parent.left.size + 1
             curent_list = curent_list.parent
         return seach_rank
+
+    def true_size(self, list_object):
+        """
+
+        :param list_object: must be root
+        :return:
+        """
+        if list_object is not self.nil:
+            assert(list_object.size == list_object.left.size +
+                                       list_object.right.size + 1), "{} {}".format(list_object.size,
+                                                                                   list_object.left.size +
+                                                                                   list_object.right.size + 1)
+            self.true_size(list_object.left)
+            self.true_size(list_object.right)
 
 class ListObject(binary_tree.ListObject):
     """

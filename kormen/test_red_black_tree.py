@@ -12,9 +12,15 @@ class Test(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        cls.num_element = 20
+        cls.num_element = []
+        cls.num_element.append(200)
         cls.tree = red_black_tree.Tree()
         cls.list_value = cls.create_random_tree(cls)
+
+    # def setUp(self):
+    #     self.num_element[0] = 200
+    #     self.tree = red_black_tree.Tree()
+    #     self.list_value = self.create_random_tree()
 
     def create_random_tree(self):
         """дфшра дфруша фжцуазэуцаоуцаушрафушар666дшо6фу6дшфудша2уар2цуа5а◘уа8ибфцуоиафцуиа
@@ -22,10 +28,11 @@ class Test(unittest.TestCase):
         :return:
         """
         list_value = []
-        for i in range(self.num_element):
+        for i in range(self.num_element[0]):
             list_value.append(random.randint(1, 100))
             list_object = red_black_tree.ListObject(list_value[-1])
             self.tree.tree_insert(list_object)
+        assert(self.tree.root.size == self.num_element[0])
         return list_value
 
     def test_tree(self):
@@ -62,9 +69,7 @@ class Test(unittest.TestCase):
         """
         # TODO patern
         rez_string = str(self.len_sub_tree(self.tree.root))
-        # print(rez_string)
         centr = rez_string.find('root')
-        # print(rez_string[centr])
         count = -1
         max_count = 0
         for i in range(centr):
@@ -74,7 +79,6 @@ class Test(unittest.TestCase):
                 count -= 1
             if count > max_count:
                 max_count = count
-        print('left = ', max_count)
         count = 1
         max_count = 0
         open_tree = False
@@ -97,9 +101,7 @@ class Test(unittest.TestCase):
                 rb_depth_tree += 1
             if count > max_count:
                 max_count = count
-        print('right = ', max_count, 'red_black_tree = ', rb_depth_tree)
         res_value = self.tree.inorder_tree_walk(self.tree.root)
-        print(res_value)
 
     def len_sub_tree(self, list_object):
         """
@@ -114,6 +116,7 @@ class Test(unittest.TestCase):
                         list_object.key),
                     self.len_sub_tree(list_object.right))
 
+    # @unittest.skip('dont work')
     def test_transplant(self):
         # self.list_value = self.create_random_tree(1)
         curr_value = self.list_value[random.randint(
@@ -123,26 +126,34 @@ class Test(unittest.TestCase):
         # проверка, что можем заменить поддерево с корневым узлом list_object
         # поддеревом с корневым узлом list)object.right
         if list_object == list_object.parent.right:
-            self.tree.transplant(list_object, list_object.right)
+            diff_size = self.tree.transplant(list_object, list_object.right)
             self.assertEqual(list_object.right, list_object.parent.right)
             sub_tree2 = self.tree.inorder_tree_walk(list_object.parent.right)
         else:
-            self.tree.transplant(list_object, list_object.right)
+            diff_size = self.tree.transplant(list_object, list_object.right)
             self.assertEqual(list_object.right, list_object.parent.left)
             sub_tree2 = self.tree.inorder_tree_walk(list_object.parent.left)
         self.assertEqual(sub_tree1, sub_tree2)
 
+        # self.tree.return_true_size(list_object.right, diff_size)
+        self.assertEqual(self.tree.root.size, self.num_element[0] + diff_size,
+                         diff_size)
+        self.assertEqual(self.tree.os_rank(self.tree.root),
+                         self.tree.root.left.size + 1)
+        self.true_size(self.tree.root)
+
+    # @unittest.skip('not work')
     def test_delete(self):
         # self.list_value = self.create_random_tree(100)
         curr_value = self.list_value[random.randint(
                         0, len(self.list_value) - 1)]
-        list_object = self.tree.tree_search(self.tree.root, curr_value)
+        # list_object = self.tree.tree_search(self.tree.root, curr_value)
+        list_object = self.tree.tree_minimum(self.tree.root).parent
         self.tree.delete_list(list_object)
         # TODO
         # не знаю как нормально проверить, что правильно удалили элемент,
         # кроме как проверить, что возвращается сортированый список значений.
         res_value = self.tree.inorder_tree_walk(self.tree.root)
-        # print(res_value)
         string_res = str(res_value)
         list_with_string = string_res.replace('(', ''). \
             replace(')', ''). \
@@ -150,9 +161,14 @@ class Test(unittest.TestCase):
             replace(',', ''). \
             rsplit('  ')
         self.list_value = [int(num) for num in list_with_string]
-        # print('list_value = ', list_value)
         self.assertEqual(self.list_value, sorted(self.list_value))
         # self.assertTrue(False)
+        self.assertEqual(self.tree.root.size, self.num_element[0] - 1)
+        self.assertEqual(self.tree.os_rank(self.tree.root),
+                         self.tree.root.left.size + 1)
+        self.true_size(self.tree.root)
+        self.num_element[0] -= 1
+        pass
 
     def test_select_rank(self):
         """
@@ -161,7 +177,11 @@ class Test(unittest.TestCase):
         """
         rank = self.tree.os_rank(self.tree.root) - 1
         list_object = self.tree.os_select(self.tree.root, rank)
-        self.assertTrue(list_object)
+        true_result = self.tree.root.left
+        while true_result.right is not self.tree.nil:
+            true_result = true_result.right
+        self.assertEqual(list_object, true_result, (list_object.__dict__,
+                                                    true_result.__dict__))
         seach_rank = self.tree.os_rank(list_object)
         self.assertEqual(rank, seach_rank)
 
@@ -173,13 +193,20 @@ class Test(unittest.TestCase):
         seach_rank = self.tree.os_rank(self.tree.root)
         self.assertEqual(seach_rank, self.tree.root.left.size + 1)
         self.assertEqual(self.tree.root.left.size +
-                         self.tree.root.right.size + 1,
-            self.tree.root.size)
+                            self.tree.root.right.size + 1,
+                         self.tree.root.size)
         self.assertEqual(self.tree.root.left.size +
-                         self.tree.root.right.size + 1,
-            self.num_element)
+                            self.tree.root.right.size + 1,
+                         self.num_element[0])
 
+    def true_size(self, list_object):
+        """
 
-
-    def test_insert_with_size(self):
-        self.assertEqual(self.tree.root.size, self.num_element)
+        :param list_object: must be root
+        :return:
+        """
+        if list_object is not self.tree.nil:
+            self.assertEqual(list_object.size, list_object.left.size +
+                                               list_object.right.size + 1)
+            self.true_size(list_object.left)
+            self.true_size(list_object.right)
