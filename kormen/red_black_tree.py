@@ -129,8 +129,8 @@ class Tree(object):
         :return:
         """
         if list_tree is not self.nil:
-            return self.inorder_tree_walk(list_tree.left), list_tree.key, \
-                   self.inorder_tree_walk(list_tree.right)
+            return (self.inorder_tree_walk(list_tree.left), list_tree.key,
+                    self.inorder_tree_walk(list_tree.right))
 
     def transplant(self, old_subroot, new_subroot):
         """
